@@ -1,0 +1,1 @@
+# Responsiveness Improvements - COMPLETE ✅\n\n- [x] Mobile navigation drawer (App.vue)\n- [x] Responsive layout/CSS (main.css)\n- [x] Discover swipe cards\n- [x] Profile form\n- [x] Matches & Chat pages\n\nVite auto-reloaded changes. Test by resizing browser (DevTools mobile view) or phone. PC full-width, mobile drawer + stacked.\n\nPrevious tasks done.

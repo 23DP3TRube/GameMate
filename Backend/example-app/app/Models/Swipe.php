@@ -1,0 +1,11 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Swipe extends Model
+{
+    protected $fillable = ['user_id','target_id','liked'];
+    protected $casts = ['liked' => 'boolean'];
+}
