@@ -66,66 +66,54 @@ async function submit() {
 <style scoped>
 .page {
   min-height: 80vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   padding: 24px;
+  background: radial-gradient(ellipse at 50% 0%, rgba(124,58,237,.12) 0%, transparent 60%);
 }
 .card {
-  background: #1e1e1e;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 40px;
-  width: 100%;
-  max-width: 420px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
+  background: #13131f;
+  border: 1px solid rgba(124,58,237,.25);
+  border-radius: 20px;
+  padding: 44px 40px;
+  width: 100%; max-width: 420px;
+  display: flex; flex-direction: column; gap: 14px;
+  box-shadow: 0 0 60px rgba(124,58,237,.1), 0 24px 48px rgba(0,0,0,.5);
 }
-.logo { font-size: 40px; text-align: center; }
-h2 { text-align: center; margin: 0; font-size: 1.5rem; color: #fff; }
-.sub { text-align: center; color: #888; font-size: 0.85rem; margin: 0; }
+.logo { font-size: 44px; text-align: center; margin-bottom: 4px; }
+h2 { text-align: center; margin: 0; font-size: 1.6rem; font-weight: 800; color: #fff; }
+.sub { text-align: center; color: #6b7280; font-size: 0.875rem; margin: 0; }
 .error-box {
-  background: #3b1212;
-  border: 1px solid #c0392b;
-  color: #ff6b6b;
-  padding: 10px 14px;
-  border-radius: 8px;
-  font-size: 0.9rem;
+  background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
+  color: #f87171; padding: 11px 14px; border-radius: 10px; font-size: 0.875rem;
 }
 label {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  color: #ccc;
-  font-size: 0.85rem;
+  display: flex; flex-direction: column; gap: 6px;
+  color: #9ca3af; font-size: 0.8rem; font-weight: 600; letter-spacing: .3px;
 }
 input {
-  background: #2a2a2a;
-  border: 1px solid #444;
-  border-radius: 8px;
-  color: #fff;
-  font-size: 1rem;
-  padding: 10px 14px;
-  outline: none;
-  transition: border-color 0.2s;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  border-radius: 12px; color: #fff; font-size: 0.95rem;
+  padding: 12px 16px; outline: none; transition: border-color .2s, background .2s;
 }
-input:focus { border-color: #7c3aed; }
+input:focus { border-color: rgba(124,58,237,.7); background: rgba(124,58,237,.06); }
+input::placeholder { color: #4b5563; }
 .btn-primary {
-  background: #7c3aed;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 12px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-top: 4px;
-  transition: background 0.2s;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff; border: none; border-radius: 12px;
+  padding: 13px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; margin-top: 4px;
+  transition: opacity .2s, transform .15s;
+  box-shadow: 0 4px 20px rgba(124,58,237,.4);
 }
-.btn-primary:hover:not(:disabled) { background: #6d28d9; }
-.btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-.demo-hint { text-align: center; color: #666; font-size: 0.8rem; margin: 0; }
-.footer-text { text-align: center; color: #888; font-size: 0.9rem; margin: 0; }
-.footer-text a { color: #a78bfa; }
+.btn-primary:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+.btn-primary:active:not(:disabled) { transform: translateY(0); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.demo-hint { text-align: center; color: #4b5563; font-size: 0.78rem; margin: 0; }
+.demo-hint strong { color: #6b7280; }
+.footer-text { text-align: center; color: #6b7280; font-size: 0.875rem; margin: 0; }
+.footer-text a { color: #a78bfa; text-decoration: none; font-weight: 600; }
+.footer-text a:hover { color: #c4b5fd; }
+@media (max-width: 480px) {
+  .card { padding: 32px 24px; }
+}
 </style>

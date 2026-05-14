@@ -59,17 +59,17 @@ const closeMenu = () => { menuOpen.value = false }
     <!-- ── Mobile overlay ── -->
     <div class="mobile-overlay" :class="{ open: menuOpen }" @click.self="closeMenu">
       <div class="mobile-panel">
-        <RouterLink to="/" class="mm-link" @click="closeMenu">🏠 Sākums</RouterLink>
+        <RouterLink to="/" class="mm-link" @click="closeMenu">Sākums</RouterLink>
         <template v-if="auth.token">
-          <RouterLink to="/discover" class="mm-link" @click="closeMenu">🔍 Atklāt</RouterLink>
-          <RouterLink to="/matches"  class="mm-link" @click="closeMenu">💬 Sakritības</RouterLink>
-          <RouterLink to="/profile"  class="mm-link" @click="closeMenu">👤 Profils</RouterLink>
-          <RouterLink v-if="auth.user?.is_admin" to="/admin" class="mm-link mm-admin" @click="closeMenu">⚙️ Admin</RouterLink>
-          <button class="mm-link mm-logout" @click="onLogout">🚪 Iziet</button>
+          <RouterLink to="/discover" class="mm-link" @click="closeMenu">Atklāt</RouterLink>
+          <RouterLink to="/matches"  class="mm-link" @click="closeMenu">Sakritības</RouterLink>
+          <RouterLink to="/profile"  class="mm-link" @click="closeMenu">Profils</RouterLink>
+          <RouterLink v-if="auth.user?.is_admin" to="/admin" class="mm-link mm-admin" @click="closeMenu">Admin</RouterLink>
+          <button class="mm-link mm-logout" @click="onLogout">Iziet</button>
         </template>
         <template v-else>
-          <RouterLink to="/login"    class="mm-link" @click="closeMenu">🔑 Pieslēgties</RouterLink>
-          <RouterLink to="/register" class="mm-link mm-cta" @click="closeMenu">✨ Reģistrēties</RouterLink>
+          <RouterLink to="/login"    class="mm-link" @click="closeMenu">Pieslēgties</RouterLink>
+          <RouterLink to="/register" class="mm-link mm-cta" @click="closeMenu">Reģistrēties</RouterLink>
         </template>
       </div>
     </div>
@@ -79,7 +79,7 @@ const closeMenu = () => { menuOpen.value = false }
       v-if="auth.token && auth.user && !auth.user.email_verified_at"
       class="verify-banner"
     >
-      <span>📧 Apstipriniet savu e-pastu, lai aktivizētu kontu.</span>
+      <span>Apstipriniet savu e-pastu, lai aktivizētu kontu.</span>
       <button v-if="!resendDone" class="verify-resend" :disabled="resending" @click="resendVerification">
         {{ resending ? 'Sūta…' : 'Nosūtīt vēlreiz' }}
       </button>
@@ -113,13 +113,16 @@ img { max-width: 100%; }
 /* ── Header ── */
 .app-header {
   width: 100%;
-  height: 60px;
+  height: 62px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 28px;
-  background: #1a1a1a;
-  border-bottom: 1px solid rgba(124,58,237,.35);
+  background: rgba(8, 8, 18, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(124,58,237,.28);
+  box-shadow: 0 1px 32px rgba(0,0,0,.4), 0 0 0 0.5px rgba(124,58,237,.1);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -127,8 +130,12 @@ img { max-width: 100%; }
 }
 
 .brand {
-  color: #fff; text-decoration: none;
-  font-weight: 800; font-size: 1.1rem; letter-spacing: .3px;
+  background: linear-gradient(135deg, #c4b5fd 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-decoration: none;
+  font-weight: 900; font-size: 1.1rem; letter-spacing: .2px;
 }
 
 /* Desktop nav */
@@ -142,7 +149,10 @@ img { max-width: 100%; }
   transition: color .2s, background .2s;
 }
 .nav-link:hover { color: #fff; background: rgba(255,255,255,.07); }
-.router-link-active.nav-link { color: #a78bfa; }
+.router-link-active.nav-link {
+  color: #c4b5fd;
+  background: rgba(167,139,250,.1);
+}
 
 .nav-cta {
   color: #fff; text-decoration: none;

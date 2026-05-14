@@ -71,6 +71,29 @@ const features = [
     </div>
   </section>
 
+  <!-- ── Stats strip ── -->
+  <div class="stats-strip">
+    <div class="stat-item">
+      <span class="stat-num">500+</span>
+      <span class="stat-lbl">Aktīvi spēlētāji</span>
+    </div>
+    <div class="stat-div" />
+    <div class="stat-item">
+      <span class="stat-num">50+</span>
+      <span class="stat-lbl">Atbalstītas spēles</span>
+    </div>
+    <div class="stat-div" />
+    <div class="stat-item">
+      <span class="stat-num">200+</span>
+      <span class="stat-lbl">Sakritības</span>
+    </div>
+    <div class="stat-div" />
+    <div class="stat-item">
+      <span class="stat-num">5</span>
+      <span class="stat-lbl">Platformas</span>
+    </div>
+  </div>
+
   <!-- ── How it works + Features ── -->
   <section class="body-section">
     <div class="body-inner">
@@ -101,6 +124,20 @@ const features = [
         </div>
       </div>
 
+    </div>
+  </section>
+
+  <!-- ── Bottom CTA ── -->
+  <section class="cta-section">
+    <div class="cta-glow" />
+    <div class="cta-inner">
+      <p class="cta-eyebrow">Gatavs sākt?</p>
+      <h2 class="cta-title">Atrodi savu spēļu komandu šodien</h2>
+      <p class="cta-sub">Pievienojies simtiem spēlētāju, kas jau ir atraduši savus komandas biedrus GameMate.</p>
+      <div class="cta-actions">
+        <router-link v-if="!auth.token" to="/register" class="cta-btn-primary">Sākt bez maksas →</router-link>
+        <router-link v-else to="/discover" class="cta-btn-primary">Atklāt spēlētājus →</router-link>
+      </div>
     </div>
   </section>
 </template>
@@ -276,6 +313,60 @@ const features = [
 .feat-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 4px; }
 .feat-desc  { color: #9ca3af; font-size: 0.8rem; line-height: 1.5; }
 
+/* ── Stats strip ── */
+.stats-strip {
+  display: flex; align-items: center; justify-content: center;
+  flex-wrap: wrap; gap: 0;
+  background: rgba(124,58,237,.06);
+  border-top: 1px solid rgba(124,58,237,.12);
+  border-bottom: 1px solid rgba(124,58,237,.12);
+  padding: 20px 32px;
+}
+.stat-item {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 4px 40px; gap: 3px;
+}
+.stat-num  { font-size: 1.5rem; font-weight: 900; color: #c4b5fd; line-height: 1; }
+.stat-lbl  { font-size: .72rem; font-weight: 600; color: #6b7280; letter-spacing: .5px; text-transform: uppercase; }
+.stat-div  { width: 1px; height: 36px; background: rgba(255,255,255,.08); }
+
+/* ── CTA section ── */
+.cta-section {
+  position: relative; overflow: hidden;
+  padding: 80px 32px 88px;
+  text-align: center;
+}
+.cta-glow {
+  position: absolute;
+  top: -120px; left: 50%; transform: translateX(-50%);
+  width: 700px; height: 500px;
+  background: radial-gradient(circle, rgba(124,58,237,.18) 0%, transparent 65%);
+  pointer-events: none;
+}
+.cta-inner {
+  position: relative; z-index: 1;
+  max-width: 640px; margin: 0 auto;
+}
+.cta-eyebrow {
+  font-size: .72rem; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: #a78bfa; margin-bottom: 14px;
+}
+.cta-title {
+  font-size: clamp(1.6rem, 3vw, 2.4rem);
+  font-weight: 900; line-height: 1.15; margin-bottom: 16px; color: #fff;
+}
+.cta-sub { color: #9ca3af; font-size: 1rem; line-height: 1.65; margin-bottom: 32px; }
+.cta-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+.cta-btn-primary {
+  display: inline-block;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff; text-decoration: none;
+  padding: 14px 32px; border-radius: 12px; font-size: 1rem; font-weight: 700;
+  box-shadow: 0 4px 24px rgba(124,58,237,.45);
+  transition: opacity .2s, transform .15s;
+}
+.cta-btn-primary:hover { opacity: .9; transform: translateY(-2px); }
+
 /* ── Mobile ── */
 @media (max-width: 900px) {
   .hero-section { padding: 52px 24px 40px; }
@@ -288,5 +379,7 @@ const features = [
 @media (max-width: 600px) {
   .hero-title { font-size: 2rem; }
   .feats-grid { grid-template-columns: 1fr 1fr; }
+  .stat-item  { padding: 4px 20px; }
+  .cta-section { padding: 56px 24px 64px; }
 }
 </style>

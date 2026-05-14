@@ -18,7 +18,7 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:120',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6',
+            'password' => ['required','string','min:8','regex:/[A-Z]/','regex:/[a-z]/','regex:/[0-9]/','regex:/[^A-Za-z0-9]/'],
             'gamertag' => 'required|string|max:60|unique:profiles,gamertag',
         ]);
 

@@ -140,183 +140,209 @@ const save = async () => {
   } catch (e) {
     error.value = e.response?.data?.message || 'Saglabāšana neizdevās. Lūdzu, mēģini vēlreiz.'
   } finally {
-    saving.value = false }
+    saving.value = false
+  }
 }
 </script>
 
 <template>
-  <v-container class="py-8 pa-4" style="max-width: 860px; margin: 0 auto;">
-    <h2 class="mb-6 text-h5 font-weight-bold">Mans profils</h2>
+  <div class="profile-page">
 
-    <v-alert v-if="saved" type="success" class="mb-4" closable>Profils saglabāts!</v-alert>
-    <v-alert v-if="error" type="error" class="mb-4" closable>{{ error }}</v-alert>
+    <!-- Page header -->
+    <div class="page-head">
+      <div class="ph-avatar-wrap">
+        <img v-if="avatarPreview" :src="avatarPreview" class="ph-avatar" />
+        <div v-else class="ph-avatar-circle" :style="{ background: form.avatar_color || '#7c3aed' }">
+          {{ form.gamertag?.[0]?.toUpperCase() || '?' }}
+        </div>
+      </div>
+      <div>
+        <h1 class="ph-title">Mans profils</h1>
+        <p class="ph-sub">{{ form.gamertag || 'Iestatī savu GameMate profilu' }}</p>
+      </div>
+    </div>
 
-    <!-- Avatar -->
-    <v-card color="grey-darken-4" class="pa-5 mb-4">
-      <div class="text-subtitle-1 font-weight-bold mb-3">Profila attēls</div>
+    <div v-if="saved" class="c-alert c-success">✓ Profils veiksmīgi saglabāts!</div>
+    <div v-if="error" class="c-alert c-error">⚠ {{ error }}</div>
+
+    <!-- Avatar section -->
+    <div class="sc">
+      <div class="sc-head">Profila attēls</div>
       <div class="avatar-section">
-        <div class="avatar-wrap" @click="pickAvatar" style="cursor:pointer;">
+        <div class="avatar-wrap" @click="pickAvatar">
           <img v-if="avatarPreview" :src="avatarPreview" class="avatar-img" />
-          <div v-else class="avatar-placeholder" :style="{ background: form.avatar_color }">
+          <div v-else class="avatar-placeholder" :style="{ background: form.avatar_color || '#7c3aed' }">
             {{ form.gamertag?.[0]?.toUpperCase() || '?' }}
           </div>
           <div class="avatar-overlay">Mainīt</div>
         </div>
         <div class="avatar-meta">
-          <v-btn size="small" variant="outlined" @click="pickAvatar">Augšupielādēt foto</v-btn>
-          <div class="text-caption text-grey mt-1">Maks. 4 MB · JPG / PNG / WebP</div>
-          <div v-if="avatarFile" class="text-caption text-green mt-1">{{ avatarFile.name }} (tiks saglabāts ar profilu)</div>
-          <v-text-field
-            v-model="form.avatar_color"
-            label="Avatāra krāsa (hex rezerves)"
-            density="compact"
-            hide-details
-            class="mt-3"
-            style="max-width:200px"
-          />
+          <button class="ghost-btn" @click="pickAvatar">Augšupielādēt foto</button>
+          <p class="hint">Maks. 4 MB · JPG / PNG / WebP</p>
+          <p v-if="avatarFile" class="hint green">{{ avatarFile.name }} (tiks saglabāts)</p>
+          <div class="color-row">
+            <span class="hint">Krāsa:</span>
+            <input type="color" v-model="form.avatar_color" class="color-pick" />
+            <code class="color-hex">{{ form.avatar_color }}</code>
+          </div>
         </div>
       </div>
       <input ref="fileInput" type="file" accept="image/*" style="display:none" @change="onAvatarChange" />
-    </v-card>
+    </div>
 
     <!-- Basic info -->
-    <v-card color="grey-darken-4" class="pa-5 mb-4">
-      <div class="text-subtitle-1 font-weight-bold mb-3">Pamatinformācija</div>
+    <div class="sc">
+      <div class="sc-head">Pamatinformācija</div>
       <v-row>
         <v-col cols="12" sm="6">
-          <v-text-field v-model="form.gamertag" label="Gamertag *" />
+          <v-text-field v-model="form.gamertag" label="Gamertag *" variant="outlined" density="comfortable" color="deep-purple-lighten-2" />
         </v-col>
         <v-col cols="12" sm="6">
-          <v-select v-model="form.platform" :items="platforms" label="Galvenā platforma" />
+          <v-select v-model="form.platform" :items="platforms" label="Galvenā platforma" variant="outlined" density="comfortable" color="deep-purple-lighten-2" />
         </v-col>
         <v-col cols="12" sm="6">
-          <v-select v-model="form.region" :items="regions" label="Reģions" />
+          <v-select v-model="form.region" :items="regions" label="Reģions" variant="outlined" density="comfortable" color="deep-purple-lighten-2" />
         </v-col>
         <v-col cols="12" sm="6">
-          <v-select v-model="form.playstyle" :items="styles" label="Spēles stils" />
+          <v-select v-model="form.playstyle" :items="styles" label="Spēles stils" variant="outlined" density="comfortable" color="deep-purple-lighten-2" />
         </v-col>
         <v-col cols="12">
-          <v-textarea v-model="form.bio" label="Par mani" rows="3" counter="1000" />
+          <v-textarea v-model="form.bio" label="Par mani" rows="3" counter="1000" variant="outlined" color="deep-purple-lighten-2" />
         </v-col>
       </v-row>
-    </v-card>
+    </div>
 
     <!-- Games -->
-    <v-card color="grey-darken-4" class="pa-5 mb-4">
-      <div class="text-subtitle-1 font-weight-bold mb-3">Spēles, ko spēlēju</div>
-      <div class="d-flex flex-wrap mb-3">
-        <v-chip
-          v-for="(g, i) in form.games" :key="i"
-          closable @click:close="removeGame(i)"
-          class="ma-1" color="primary" variant="tonal"
-        >{{ g }}</v-chip>
-        <span v-if="!form.games.length" class="text-grey text-caption mt-1">Vēl nav pievienotu spēļu</span>
+    <div class="sc">
+      <div class="sc-head">Spēles, ko spēlēju</div>
+      <div class="game-chips">
+        <span v-for="(g, i) in form.games" :key="i" class="g-chip">
+          {{ g }}<button class="g-remove" @click="removeGame(i)">×</button>
+        </span>
+        <span v-if="!form.games.length" class="hint">Vēl nav pievienotu spēļu</span>
       </div>
-      <div class="position-relative">
+      <div class="position-relative mt-3">
         <v-text-field
           v-model="gameSearch"
           label="Meklēt vai pievienot spēli"
           placeholder="piem. Valorant"
+          variant="outlined"
+          density="comfortable"
+          hide-details
+          color="deep-purple-lighten-2"
           @input="searchGames"
           @keyup.enter="addCustomGame"
-          hide-details
         >
           <template #append-inner>
-            <v-btn size="small" variant="text" @click="addCustomGame">Pievienot</v-btn>
+            <button class="add-inline-btn" @click="addCustomGame">+ Pievienot</button>
           </template>
         </v-text-field>
         <v-list v-if="gameSuggestions.length" class="suggestion-list elevation-4">
-          <v-list-item
-            v-for="g in gameSuggestions" :key="g"
-            @click="addGame(g)"
-            :title="g"
-            density="compact"
-          />
+          <v-list-item v-for="g in gameSuggestions" :key="g" @click="addGame(g)" :title="g" density="compact" />
         </v-list>
       </div>
-    </v-card>
+    </div>
 
     <!-- Gaming Accounts -->
-    <v-card color="grey-darken-4" class="pa-5 mb-4">
-      <div class="d-flex align-center justify-space-between mb-3">
-        <div class="text-subtitle-1 font-weight-bold">Spēļu konti un rangi</div>
-        <v-btn size="small" color="primary" variant="tonal" @click="addGamingAccount">+ Pievienot kontu</v-btn>
+    <div class="sc">
+      <div class="sc-head">
+        Spēļu konti un rangi
+        <button class="ghost-btn ghost-sm ml-auto" @click="addGamingAccount">+ Pievienot kontu</button>
       </div>
-      <div v-if="!form.gaming_accounts.length" class="text-grey text-caption mb-2">
-        Pievieno Steam, Valorant, LoL un citus kontus, lai potenciālie komandas biedri varētu redzēt tavu rangu.
-      </div>
-      <div v-for="(acc, i) in form.gaming_accounts" :key="i" class="account-row mb-3">
+      <p v-if="!form.gaming_accounts.length" class="hint mb-2">
+        Pievieno Steam, Valorant, LoL un citus kontus, lai komandas biedri varētu redzēt tavu rangu.
+      </p>
+      <div v-for="(acc, i) in form.gaming_accounts" :key="i" class="acc-row">
         <v-row dense align="center">
           <v-col cols="12" sm="3">
-            <v-select
-              v-model="acc.platform"
-              :items="GAMING_PLATFORMS.map(p => ({ title: p.icon + ' ' + p.label, value: p.key }))"
-              label="Platforma"
-              density="compact"
-              hide-details
-            />
+            <v-select v-model="acc.platform" :items="GAMING_PLATFORMS.map(p => ({ title: p.icon + ' ' + p.label, value: p.key }))" label="Platforma" density="compact" hide-details variant="outlined" color="deep-purple-lighten-2" />
           </v-col>
           <v-col cols="12" sm="3">
-            <v-text-field
-              v-model="acc.username"
-              :label="acc.platform === 'valorant' || acc.platform === 'riotid' ? 'Lietotājvārds#TAG' : 'Lietotājvārds / ID'"
-              density="compact"
-              hide-details
-            />
+            <v-text-field v-model="acc.username" :label="acc.platform === 'valorant' || acc.platform === 'riotid' ? 'Lietotājvārds#TAG' : 'Lietotājvārds / ID'" density="compact" hide-details variant="outlined" color="deep-purple-lighten-2" />
           </v-col>
           <v-col cols="12" sm="3">
-            <v-select
-              v-if="getRankOptions(acc.platform)"
-              v-model="acc.rank"
-              :items="getRankOptions(acc.platform)"
-              label="Rangs"
-              density="compact"
-              hide-details
-              clearable
-            />
-            <v-text-field
-              v-else
-              v-model="acc.rank"
-              label="Rangs (neobligāts)"
-              density="compact"
-              hide-details
-            />
+            <v-select v-if="getRankOptions(acc.platform)" v-model="acc.rank" :items="getRankOptions(acc.platform)" label="Rangs" density="compact" hide-details clearable variant="outlined" color="deep-purple-lighten-2" />
+            <v-text-field v-else v-model="acc.rank" label="Rangs (neobligāts)" density="compact" hide-details variant="outlined" color="deep-purple-lighten-2" />
           </v-col>
           <v-col cols="12" sm="2">
-            <v-text-field
-              v-if="['lol','cs2'].includes(acc.platform)"
-              v-model="acc.server"
-              label="Serveris"
-              density="compact"
-              hide-details
-              placeholder="EUW, NA…"
-            />
+            <v-text-field v-if="['lol','cs2'].includes(acc.platform)" v-model="acc.server" label="Serveris" density="compact" hide-details placeholder="EUW, NA…" variant="outlined" color="deep-purple-lighten-2" />
           </v-col>
           <v-col cols="auto" class="d-flex align-center gap-1">
-            <v-btn
-              v-if="TRACKER_PLATFORMS.includes(acc.platform) && acc.username"
-              size="small" variant="tonal" color="cyan"
-              :loading="fetchingRank[i]"
-              @click="fetchRank(acc, i)"
-              title="Iegūt rangu no Tracker.gg"
-            >
+            <v-btn v-if="TRACKER_PLATFORMS.includes(acc.platform) && acc.username" size="small" variant="tonal" color="cyan" :loading="fetchingRank[i]" @click="fetchRank(acc, i)" title="Iegūt rangu no Tracker.gg">
               <span style="font-size:13px">📡</span>
             </v-btn>
             <v-btn icon size="small" color="red" variant="text" @click="removeGamingAccount(i)">✕</v-btn>
           </v-col>
         </v-row>
       </div>
-    </v-card>
+    </div>
 
-    <v-btn color="primary" :loading="saving" @click="save" block size="large">Saglabāt profilu</v-btn>
-  </v-container>
+    <button class="save-btn" :disabled="saving" @click="save">
+      {{ saving ? 'Saglabā…' : 'Saglabāt profilu' }}
+    </button>
+
+  </div>
 </template>
 
 <style scoped>
+.profile-page {
+  max-width: 860px; margin: 0 auto;
+  padding: 40px 24px 60px;
+}
+
+/* Page header */
+.page-head {
+  display: flex; align-items: center; gap: 16px;
+  margin-bottom: 28px;
+}
+.ph-avatar-wrap { flex-shrink: 0; }
+.ph-avatar, .ph-avatar-circle {
+  width: 60px; height: 60px; border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(124,58,237,.5);
+  box-shadow: 0 0 24px rgba(124,58,237,.25);
+}
+.ph-avatar-circle {
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 800; color: #fff;
+}
+.ph-title { font-size: 1.6rem; font-weight: 800; color: #fff; margin: 0 0 2px; }
+.ph-sub   { color: #6b7280; font-size: .85rem; margin: 0; }
+
+/* Alerts */
+.c-alert {
+  border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;
+  font-size: .875rem; font-weight: 600;
+}
+.c-success { background: rgba(74,222,128,.1); border: 1px solid rgba(74,222,128,.25); color: #4ade80; }
+.c-error   { background: rgba(239,68,68,.1);  border: 1px solid rgba(239,68,68,.25);  color: #f87171; }
+
+/* Section card */
+.sc {
+  background: #13131f;
+  border: 1px solid rgba(124,58,237,.18);
+  border-radius: 16px; padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 24px rgba(0,0,0,.3);
+}
+.sc-head {
+  display: flex; align-items: center; gap: 8px;
+  font-weight: 700; font-size: .95rem; color: #e5e7eb;
+  margin-bottom: 18px; padding-bottom: 14px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.sc-head > span:first-child { font-size: 16px; }
+.ml-auto { margin-left: auto; }
+
+/* Avatar */
 .avatar-section { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
-.avatar-meta    { flex: 1; min-width: 160px; }
-.avatar-wrap { position: relative; width: 90px; height: 90px; border-radius: 50%; overflow: hidden; flex-shrink: 0; }
-.avatar-img  { width: 90px; height: 90px; object-fit: cover; border-radius: 50%; }
+.avatar-wrap {
+  position: relative; width: 90px; height: 90px;
+  border-radius: 50%; overflow: hidden; flex-shrink: 0;
+  cursor: pointer;
+  box-shadow: 0 0 0 3px rgba(124,58,237,.3), 0 4px 20px rgba(0,0,0,.4);
+}
+.avatar-img { width: 90px; height: 90px; object-fit: cover; border-radius: 50%; }
 .avatar-placeholder {
   width: 90px; height: 90px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -324,18 +350,86 @@ const save = async () => {
 }
 .avatar-overlay {
   position: absolute; bottom: 0; left: 0; right: 0;
-  background: rgba(0,0,0,.55); color: #fff;
-  font-size: 11px; text-align: center; padding: 3px 0;
+  background: rgba(0,0,0,.6); color: #fff;
+  font-size: 11px; text-align: center; padding: 4px 0;
   opacity: 0; transition: opacity .2s;
 }
 .avatar-wrap:hover .avatar-overlay { opacity: 1; }
+.avatar-meta { flex: 1; min-width: 160px; display: flex; flex-direction: column; gap: 8px; }
+
+.color-row   { display: flex; align-items: center; gap: 8px; }
+.color-pick  { width: 30px; height: 30px; border: none; border-radius: 6px; cursor: pointer; padding: 2px; background: transparent; }
+.color-hex   { font-family: monospace; font-size: .75rem; color: #9ca3af; }
+
+/* Buttons */
+.ghost-btn {
+  background: rgba(124,58,237,.12); border: 1px solid rgba(124,58,237,.28);
+  color: #a78bfa; padding: 8px 16px; border-radius: 8px;
+  font-size: .82rem; font-weight: 600; cursor: pointer;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.ghost-btn:hover { background: rgba(124,58,237,.22); }
+.ghost-sm { padding: 5px 12px; font-size: .75rem; }
+
+.add-inline-btn {
+  background: rgba(124,58,237,.15); border: none; color: #a78bfa;
+  padding: 4px 10px; border-radius: 6px; font-size: .75rem; font-weight: 600;
+  cursor: pointer; transition: background .2s; white-space: nowrap;
+}
+.add-inline-btn:hover { background: rgba(124,58,237,.3); }
+
+/* Hints */
+.hint     { color: #6b7280; font-size: .78rem; margin: 0; }
+.hint.green { color: #4ade80; }
+.mb-2     { margin-bottom: 8px; }
+.mt-3     { margin-top: 12px; }
+
+/* Game chips */
+.game-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.g-chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: rgba(124,58,237,.2); color: #a78bfa;
+  padding: 5px 6px 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+.g-remove {
+  background: rgba(255,255,255,.1); border: none; color: #a78bfa;
+  width: 18px; height: 18px; border-radius: 50%; cursor: pointer;
+  font-size: 15px; display: flex; align-items: center; justify-content: center;
+  line-height: 1; padding: 0; transition: background .2s, color .2s;
+}
+.g-remove:hover { background: rgba(239,68,68,.3); color: #f87171; }
+
+/* Account row */
+.acc-row {
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.06);
+  border-radius: 10px; padding: 10px; margin-bottom: 10px;
+}
+
+/* Suggestion list */
 .suggestion-list {
   position: absolute; top: 100%; left: 0; right: 0; z-index: 10;
   max-height: 220px; overflow-y: auto;
-  background: #2a2a2a; border-radius: 6px;
+  background: #1e1e2e; border: 1px solid rgba(124,58,237,.2);
+  border-radius: 8px; margin-top: 4px;
 }
-.account-row { background: rgba(255,255,255,.04); border-radius: 8px; padding: 8px; }
+
+/* Save button */
+.save-btn {
+  width: 100%;
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: #fff; border: none; border-radius: 12px;
+  padding: 15px; font-size: 1rem; font-weight: 700;
+  cursor: pointer; margin-top: 8px;
+  transition: opacity .2s, transform .15s;
+  box-shadow: 0 4px 24px rgba(124,58,237,.4);
+}
+.save-btn:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
+.save-btn:active:not(:disabled) { transform: translateY(0); }
+.save-btn:disabled { opacity: .45; cursor: not-allowed; }
+
 @media (max-width: 600px) {
-  .avatar-section { gap: 16px; }
+  .profile-page { padding: 24px 16px 40px; }
+  .sc { padding: 18px 16px; }
 }
 </style>
