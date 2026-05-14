@@ -1,6 +1,15 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+
+Route::options('{any}', function () {
+    return response('', 200, [
+        'Access-Control-Allow-Origin'  => '*',
+        'Access-Control-Allow-Methods' => 'GET, POST, PUT, DELETE, OPTIONS',
+        'Access-Control-Allow-Headers' => 'Content-Type, Authorization, X-Requested-With',
+    ]);
+})->where('any', '.*');
+
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\MatchController;
