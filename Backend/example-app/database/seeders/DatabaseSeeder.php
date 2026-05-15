@@ -29,5 +29,13 @@ class DatabaseSeeder extends Seeder
                 'bio'=>"Hey, es esmu $name. Meklēju komandas biedrus!",
             ]);
         }
+
+        $admin = User::where('name', 'duckgun2')
+            ->orWhereHas('profile', fn($q) => $q->where('gamertag', 'duckgun2'))
+            ->first();
+        if ($admin) {
+            $admin->is_admin = true;
+            $admin->save();
+        }
     }
 }
