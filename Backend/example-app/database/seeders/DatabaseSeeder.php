@@ -22,6 +22,7 @@ class DatabaseSeeder extends Seeder
         foreach ($samples as [$name,$email,$tag,$plat,$region,$style,$games,$color]) {
             $u = User::updateOrCreate(['email'=>$email], [
                 'name'=>$name,'password'=>Hash::make('password'),'api_token'=>Str::random(64),
+                'is_admin'=>$email === 'alex@demo.com',
             ]);
             Profile::updateOrCreate(['user_id'=>$u->id], [
                 'gamertag'=>$tag,'platform'=>$plat,'region'=>$region,'playstyle'=>$style,
