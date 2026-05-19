@@ -116,7 +116,7 @@ class AdminController extends Controller
 
         $totalUsers    = User::count();
         $totalSwipes   = DB::table('swipes')->count();
-        $totalMatches  = DB::table('match_records')->count();
+        $totalMatches  = DB::table('matches')->count();
         $totalMessages = DB::table('messages')->count();
         $avgMatchesPerUser = $totalUsers > 0
             ? round($totalMatches / $totalUsers, 2)
@@ -140,11 +140,11 @@ class AdminController extends Controller
             ->groupBy('playstyle')->orderByDesc('total')
             ->get();
 
-        $topMatched = DB::table('match_records')
+        $topMatched = DB::table('matches')
             ->selectRaw('user_a_id as uid, COUNT(*) as cnt')
             ->groupBy('user_a_id')
             ->unionAll(
-                DB::table('match_records')
+                DB::table('matches')
                     ->selectRaw('user_b_id as uid, COUNT(*) as cnt')
                     ->groupBy('user_b_id')
             )
