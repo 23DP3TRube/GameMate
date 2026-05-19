@@ -90,7 +90,7 @@ class AuthController extends Controller
                 <div style="font-size:48px;margin-bottom:16px;">✅</div>
                 <h2 style="color:#4ade80;margin:0 0 12px;">E-pasts apstiprināts!</h2>
                 <p style="color:#9ca3af;margin:0 0 24px;">Tavs GameMate konts ir aktivizēts.</p>
-                <a href="http://localhost:5173/login" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 28px;border-radius:10px;font-weight:700;">Pieslēgties</a>
+                <a href="' . env('FRONTEND_URL', 'http://localhost:5173') . '/login" style="display:inline-block;background:#7c3aed;color:#fff;text-decoration:none;padding:12px 28px;border-radius:10px;font-weight:700;">Pieslēgties</a>
             </div></body></html>',
             200
         )->header('Content-Type', 'text/html');
@@ -130,7 +130,7 @@ class AuthController extends Controller
             'created_at' => now(),
         ]);
 
-        $resetUrl = 'http://localhost:5173/reset-password/' . $token . '?email=' . urlencode($user->email);
+        $resetUrl = env('FRONTEND_URL', 'http://localhost:5173') . '/reset-password/' . $token . '?email=' . urlencode($user->email);
 
         try {
             Mail::to($user->email)->send(new ResetPassword($user->name, $resetUrl));
