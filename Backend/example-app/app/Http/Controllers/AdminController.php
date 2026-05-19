@@ -140,18 +140,6 @@ class AdminController extends Controller
             ->groupBy('playstyle')->orderByDesc('total')
             ->get();
 
-        $topMatched = DB::table('matches')
-            ->selectRaw('user_a_id as uid, COUNT(*) as cnt')
-            ->groupBy('user_a_id')
-            ->unionAll(
-                DB::table('matches')
-                    ->selectRaw('user_b_id as uid, COUNT(*) as cnt')
-                    ->groupBy('user_b_id')
-            )
-            ->orderByDesc('cnt')
-            ->limit(5)
-            ->get();
-
         return response()->json([
             'total_users'         => $totalUsers,
             'total_swipes'        => $totalSwipes,
