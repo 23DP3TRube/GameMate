@@ -30,6 +30,7 @@ Route::post('/reset-password',      [AuthController::class, 'resetPassword']);
 Route::middleware(ApiTokenAuth::class)->group(function () {
     Route::get('/me',                      [AuthController::class, 'me']);
     Route::post('/logout',                 [AuthController::class, 'logout']);
+    Route::delete('/account',             [AuthController::class, 'deleteAccount']);
     Route::post('/resend-verification',    [AuthController::class, 'resendVerification']);
 
     Route::put('/profile',              [ProfileController::class, 'update']);

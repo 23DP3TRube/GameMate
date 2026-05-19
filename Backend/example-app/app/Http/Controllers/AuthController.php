@@ -182,4 +182,12 @@ class AuthController extends Controller
         $user->save();
         return response()->json(['ok' => true]);
     }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+        $user->profile?->delete();
+        $user->delete();
+        return response()->json(['ok' => true]);
+    }
 }

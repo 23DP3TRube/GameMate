@@ -128,6 +128,32 @@ const uploadAvatar = async () => {
   }
 }
 
+const deleteDialog  = ref(false)
+const deleteConfirm = ref('')
+const deleting      = ref(false)
+
+const openDeleteDialog = () => {
+  deleteConfirm.value = ''
+  deleteDialog.value  = true
+}
+
+const deleteAccount = async () => {
+  if (deleteConfirm.value !== 'DZĒST') return
+  deleting.value = true
+  try {
+    await api.delete('/account')
+    auth.token = null
+    auth.user  = null
+    localStorage.removeItem('gm_token')
+    window.location.href = '/'
+  } catch {
+    error.value = 'Konta dzēšana neizdevās. Mēģini vēlreiz.'
+    deleteDialog.value = false
+  } finally {
+    deleting.value = false
+  }
+}
+
 const save = async () => {
   saving.value = true; saved.value = false; error.value = ''
   try {
@@ -281,6 +307,44 @@ const save = async () => {
       {{ saving ? 'Saglabā…' : 'Saglabāt profilu' }}
     </button>
 
+    <!-- Danger zone -->
+    <div class="sc danger-zone">
+      <div class="sc-head" style="color:#f87171;border-color:rgba(239,68,68,.15)">⚠ Bīstamā zona</div>
+      <p class="hint" style="margin-bottom:14px;">Konta dzēšana ir neatgriezeniska. Visi tavi dati, profils un sakritības tiks neatgriezeniski dzēsti.</p>
+      <button class="delete-btn" @click="openDeleteDialog">Dzēst manu kontu</button>
+    </div>
+
+    <!-- Confirmation dialog -->
+    <v-dialog v-model="deleteDialog" max-width="440" persistent>
+      <v-card style="background:#13131f;border:1px solid rgba(239,68,68,.3);border-radius:16px;">
+        <v-card-title style="color:#f87171;padding:24px 24px 8px;font-size:1.1rem;font-weight:800;">
+          ⚠ Dzēst kontu?
+        </v-card-title>
+        <v-card-text style="color:#9ca3af;font-size:.875rem;">
+          <p style="margin-bottom:16px;">Šī darbība ir <strong style="color:#f87171">neatgriezeniska</strong>. Visi tavi dati tiks neatgriezeniski dzēsti.</p>
+          <p style="margin-bottom:10px;">Lai apstiprinātu, ieraksti <strong style="color:#fff">DZĒST</strong>:</p>
+          <input
+            v-model="deleteConfirm"
+            type="text"
+            placeholder="DZĒST"
+            class="confirm-input"
+            @keyup.enter="deleteAccount"
+          />
+        </v-card-text>
+        <v-card-actions style="padding:0 24px 24px;gap:10px;">
+          <button class="ghost-btn" style="flex:1" @click="deleteDialog = false">Atcelt</button>
+          <button
+            class="delete-btn"
+            style="flex:1"
+            :disabled="deleteConfirm !== 'DZĒST' || deleting"
+            @click="deleteAccount"
+          >
+            {{ deleting ? 'Dzēš…' : 'Dzēst kontu' }}
+          </button>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+
   </div>
 </template>
 
@@ -427,6 +491,28 @@ const save = async () => {
 .save-btn:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
 .save-btn:active:not(:disabled) { transform: translateY(0); }
 .save-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.danger-zone {
+  border-color: rgba(239,68,68,.2);
+  margin-top: 24px;
+}
+.delete-btn {
+  background: rgba(239,68,68,.12); border: 1px solid rgba(239,68,68,.35);
+  color: #f87171; padding: 10px 20px; border-radius: 8px;
+  font-size: .875rem; font-weight: 600; cursor: pointer;
+  transition: background .2s;
+  white-space: nowrap;
+}
+.delete-btn:hover:not(:disabled) { background: rgba(239,68,68,.25); }
+.delete-btn:disabled { opacity: .4; cursor: not-allowed; }
+.confirm-input {
+  width: 100%; background: rgba(255,255,255,.05);
+  border: 1px solid rgba(239,68,68,.4); border-radius: 10px;
+  color: #fff; font-size: .95rem; padding: 11px 14px; outline: none;
+  transition: border-color .2s;
+}
+.confirm-input:focus { border-color: #f87171; }
+.confirm-input::placeholder { color: #4b5563; }
 
 @media (max-width: 600px) {
   .profile-page { padding: 24px 16px 40px; }
