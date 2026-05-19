@@ -33,9 +33,16 @@ const sortDir  = ref('asc')
 const deleting = ref({})
 const toggling = ref({})
 
+const error = ref('')
+
 onMounted(async () => {
-  await Promise.all([loadUsers(), loadStats()])
-  loading.value = false
+  try {
+    await Promise.all([loadUsers(), loadStats()])
+  } catch (e) {
+    error.value = e.response?.data?.message || 'Neizdevās ielādēt datus.'
+  } finally {
+    loading.value = false
+  }
 })
 
 const loadUsers = async () => {
@@ -113,6 +120,7 @@ const toggleAdmin = async (u) => {
     </div>
 
     <div v-if="loading" class="text-center py-10"><v-progress-circular indeterminate /></div>
+    <div v-else-if="error" class="text-center py-10" style="color:#f87171;">{{ error }}</div>
 
     <!-- ── Users tab ── -->
     <div v-else-if="tab === 'users'">
