@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Mail\VerifyEmail;
+use App\Mail\ResetPassword;
 use App\Models\User;
 use App\Models\Profile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
@@ -108,6 +110,64 @@ class AuthController extends Controller
         Mail::to($user->email)->send(new VerifyEmail($user->name, $verifyUrl));
 
         return response()->json(['message' => 'Verifikācijas e-pasts nosūtīts.']);
+    }
+
+    public function forgotPassword(Request $request)
+    {
+        $data = $request->validate(['email' => 'required|email']);
+
+        $user = User::where('email', $data['email'])->first();
+        if (!$user) {
+            return response()->json(['message' => 'Ja šāds e-pasts eksistē, saite tiks nosūtīta.']);
+        }
+
+        DB::table('password_reset_tokens')->where('email', $user->email)->delete();
+
+        $token = Str::random(64);
+        DB::table('password_reset_tokens')->insert([
+            'email'      => $user->email,
+            'token'      => Hash::make($token),
+            'created_at' => now(),
+        ]);
+
+        $resetUrl = 'http://localhost:5173/reset-password/' . $token . '?email=' . urlencode($user->email);
+
+        try {
+            Mail::to($user->email)->send(new ResetPassword($user->name, $resetUrl));
+        } catch (\Throwable) {
+            // Don't expose mail errors
+        }
+
+        return response()->json(['message' => 'Ja šāds e-pasts eksistē, saite tiks nosūtīta.']);
+    }
+
+    public function resetPassword(Request $request)
+    {
+        $data = $request->validate([
+            'email'    => 'required|email',
+            'token'    => 'required|string',
+            'password' => ['required','string','min:8','regex:/[A-Z]/','regex:/[a-z]/','regex:/[0-9]/','regex:/[^A-Za-z0-9]/'],
+        ]);
+
+        $record = DB::table('password_reset_tokens')->where('email', $data['email'])->first();
+
+        if (!$record || !Hash::check($data['token'], $record->token)) {
+            return response()->json(['message' => 'Nederīga vai novecojusi saite.'], 422);
+        }
+
+        if (now()->diffInMinutes($record->created_at) > 60) {
+            DB::table('password_reset_tokens')->where('email', $data['email'])->delete();
+            return response()->json(['message' => 'Saite ir novecojusi. Lūdzu, pieprasi jaunu.'], 422);
+        }
+
+        $user = User::where('email', $data['email'])->firstOrFail();
+        $user->password  = Hash::make($data['password']);
+        $user->api_token = Str::random(64);
+        $user->save();
+
+        DB::table('password_reset_tokens')->where('email', $data['email'])->delete();
+
+        return response()->json(['message' => 'Parole veiksmīgi nomainīta.']);
     }
 
     public function me(Request $request)

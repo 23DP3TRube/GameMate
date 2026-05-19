@@ -1,31 +1,59 @@
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import api from '../api'
-import { auth } from '../auth'
+
+const route  = useRoute()
+const router = useRouter()
 
 const email    = ref('')
+const token    = ref('')
 const password = ref('')
+const confirm  = ref('')
 const error    = ref('')
 const loading  = ref(false)
-const router   = useRouter()
+
+const reqs = {
+  length:  { label: 'Vismaz 8 rakstzīmes',    ok: false },
+  upper:   { label: 'Viens lielais burts',      ok: false },
+  lower:   { label: 'Viens mazais burts',       ok: false },
+  digit:   { label: 'Viens cipars',            ok: false },
+  special: { label: 'Viena speciālrakstzīme',  ok: false },
+}
+
+function checkReqs(val) {
+  reqs.length.ok  = val.length >= 8
+  reqs.upper.ok   = /[A-Z]/.test(val)
+  reqs.lower.ok   = /[a-z]/.test(val)
+  reqs.digit.ok   = /[0-9]/.test(val)
+  reqs.special.ok = /[^A-Za-z0-9]/.test(val)
+}
+
+onMounted(() => {
+  token.value = route.params.token ?? ''
+  email.value = route.query.email  ?? ''
+})
 
 async function submit() {
-  if (!email.value.trim() || !password.value.trim()) {
-    error.value = 'Lūdzu ievadi e-pastu un paroli.'
+  error.value = ''
+  if (!Object.values(reqs).every(r => r.ok)) {
+    error.value = 'Parole neatbilst prasībām.'
     return
   }
-  error.value = ''
+  if (password.value !== confirm.value) {
+    error.value = 'Paroles nesakrīt.'
+    return
+  }
   loading.value = true
   try {
-    const { data } = await api.post('/login', {
-      email:    email.value.trim(),
+    await api.post('/reset-password', {
+      email:    email.value,
+      token:    token.value,
       password: password.value,
     })
-    auth.setSession(data.token, data.user)
-    router.push('/discover')
+    router.push('/login?reset=1')
   } catch (e) {
-    error.value = e.response?.data?.message || `Error ${e.response?.status ?? 'unknown'}: nevarēja pieslēgties.`
+    error.value = e.response?.data?.message || 'Radās kļūda. Mēģini vēlreiz.'
   } finally {
     loading.value = false
   }
@@ -35,33 +63,37 @@ async function submit() {
 <template>
   <div class="page">
     <div class="card">
-      <div class="logo">🎮</div>
-      <h2>Laipni atgriezies</h2>
-      <p class="sub">Pieslēdzies, lai atrastu komandas biedrus</p>
+      <div class="logo">🔒</div>
+      <h2>Jauna parole</h2>
+      <p class="sub">Ievadi jaunu paroli savam kontam.</p>
 
       <div v-if="error" class="error-box">{{ error }}</div>
 
-      <label>E-pasts
-        <input v-model="email" type="email" placeholder="tu@epasts.lv" autocomplete="email" />
+      <label>Jaunā parole
+        <input
+          v-model="password"
+          type="password"
+          placeholder="Jaunā parole"
+          @input="checkReqs(password)"
+        />
       </label>
 
-      <label>Parole
-        <input v-model="password" type="password" placeholder="Tava parole" @keyup.enter="submit" />
+      <ul class="req-list">
+        <li v-for="(r, key) in reqs" :key="key" :class="{ ok: r.ok }">
+          <span>{{ r.ok ? '✓' : '○' }}</span> {{ r.label }}
+        </li>
+      </ul>
+
+      <label>Apstiprini paroli
+        <input v-model="confirm" type="password" placeholder="Atkārtoti ievadi paroli" @keyup.enter="submit" />
       </label>
 
       <button class="btn-primary" :disabled="loading" @click="submit">
-        {{ loading ? 'Pieslēdzas…' : 'Pieslēgties' }}
+        {{ loading ? 'Saglabā…' : 'Saglabāt paroli' }}
       </button>
 
-      <p class="forgot-text">
-        <router-link to="/forgot-password">Aizmirsi paroli?</router-link>
-      </p>
-
-      <p class="demo-hint">Demo konts: <strong>alex@demo.com</strong> / <strong>password</strong></p>
-
       <p class="footer-text">
-        Nav konta?
-        <router-link to="/register">Reģistrēties</router-link>
+        <router-link to="/login">← Atpakaļ uz pieslēgšanos</router-link>
       </p>
     </div>
   </div>
@@ -101,6 +133,16 @@ input {
 }
 input:focus { border-color: rgba(124,58,237,.7); background: rgba(124,58,237,.06); }
 input::placeholder { color: #4b5563; }
+.req-list {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-direction: column; gap: 4px;
+}
+.req-list li {
+  font-size: 0.78rem; color: #4b5563;
+  display: flex; align-items: center; gap: 6px;
+  transition: color .2s;
+}
+.req-list li.ok { color: #4ade80; }
 .btn-primary {
   background: linear-gradient(135deg, #7c3aed, #6d28d9);
   color: #fff; border: none; border-radius: 12px;
@@ -112,11 +154,6 @@ input::placeholder { color: #4b5563; }
 .btn-primary:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
 .btn-primary:active:not(:disabled) { transform: translateY(0); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.forgot-text { text-align: right; font-size: 0.8rem; margin: 0; }
-.forgot-text a { color: #a78bfa; text-decoration: none; }
-.forgot-text a:hover { color: #c4b5fd; }
-.demo-hint { text-align: center; color: #4b5563; font-size: 0.78rem; margin: 0; }
-.demo-hint strong { color: #6b7280; }
 .footer-text { text-align: center; color: #6b7280; font-size: 0.875rem; margin: 0; }
 .footer-text a { color: #a78bfa; text-decoration: none; font-weight: 600; }
 .footer-text a:hover { color: #c4b5fd; }

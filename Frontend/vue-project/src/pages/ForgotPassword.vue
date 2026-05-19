@@ -1,31 +1,26 @@
 <script setup>
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import api from '../api'
-import { auth } from '../auth'
 
-const email    = ref('')
-const password = ref('')
-const error    = ref('')
-const loading  = ref(false)
-const router   = useRouter()
+const email   = ref('')
+const error   = ref('')
+const success = ref('')
+const loading = ref(false)
 
 async function submit() {
-  if (!email.value.trim() || !password.value.trim()) {
-    error.value = 'Lūdzu ievadi e-pastu un paroli.'
+  if (!email.value.trim()) {
+    error.value = 'Lūdzu ievadi savu e-pastu.'
     return
   }
-  error.value = ''
+  error.value   = ''
+  success.value = ''
   loading.value = true
   try {
-    const { data } = await api.post('/login', {
-      email:    email.value.trim(),
-      password: password.value,
-    })
-    auth.setSession(data.token, data.user)
-    router.push('/discover')
+    const { data } = await api.post('/forgot-password', { email: email.value.trim() })
+    success.value = data.message
+    email.value   = ''
   } catch (e) {
-    error.value = e.response?.data?.message || `Error ${e.response?.status ?? 'unknown'}: nevarēja pieslēgties.`
+    error.value = e.response?.data?.message || 'Radās kļūda. Mēģini vēlreiz.'
   } finally {
     loading.value = false
   }
@@ -35,33 +30,23 @@ async function submit() {
 <template>
   <div class="page">
     <div class="card">
-      <div class="logo">🎮</div>
-      <h2>Laipni atgriezies</h2>
-      <p class="sub">Pieslēdzies, lai atrastu komandas biedrus</p>
+      <div class="logo">🔑</div>
+      <h2>Aizmirsi paroli?</h2>
+      <p class="sub">Ievadi savu e-pastu un mēs nosūtīsim paroles atjaunošanas saiti.</p>
 
       <div v-if="error" class="error-box">{{ error }}</div>
+      <div v-if="success" class="success-box">{{ success }}</div>
 
       <label>E-pasts
-        <input v-model="email" type="email" placeholder="tu@epasts.lv" autocomplete="email" />
-      </label>
-
-      <label>Parole
-        <input v-model="password" type="password" placeholder="Tava parole" @keyup.enter="submit" />
+        <input v-model="email" type="email" placeholder="tu@epasts.lv" autocomplete="email" @keyup.enter="submit" />
       </label>
 
       <button class="btn-primary" :disabled="loading" @click="submit">
-        {{ loading ? 'Pieslēdzas…' : 'Pieslēgties' }}
+        {{ loading ? 'Sūta…' : 'Nosūtīt saiti' }}
       </button>
 
-      <p class="forgot-text">
-        <router-link to="/forgot-password">Aizmirsi paroli?</router-link>
-      </p>
-
-      <p class="demo-hint">Demo konts: <strong>alex@demo.com</strong> / <strong>password</strong></p>
-
       <p class="footer-text">
-        Nav konta?
-        <router-link to="/register">Reģistrēties</router-link>
+        <router-link to="/login">← Atpakaļ uz pieslēgšanos</router-link>
       </p>
     </div>
   </div>
@@ -90,6 +75,10 @@ h2 { text-align: center; margin: 0; font-size: 1.6rem; font-weight: 800; color: 
   background: rgba(239,68,68,.1); border: 1px solid rgba(239,68,68,.3);
   color: #f87171; padding: 11px 14px; border-radius: 10px; font-size: 0.875rem;
 }
+.success-box {
+  background: rgba(74,222,128,.1); border: 1px solid rgba(74,222,128,.3);
+  color: #4ade80; padding: 11px 14px; border-radius: 10px; font-size: 0.875rem;
+}
 label {
   display: flex; flex-direction: column; gap: 6px;
   color: #9ca3af; font-size: 0.8rem; font-weight: 600; letter-spacing: .3px;
@@ -112,11 +101,6 @@ input::placeholder { color: #4b5563; }
 .btn-primary:hover:not(:disabled) { opacity: .9; transform: translateY(-1px); }
 .btn-primary:active:not(:disabled) { transform: translateY(0); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-.forgot-text { text-align: right; font-size: 0.8rem; margin: 0; }
-.forgot-text a { color: #a78bfa; text-decoration: none; }
-.forgot-text a:hover { color: #c4b5fd; }
-.demo-hint { text-align: center; color: #4b5563; font-size: 0.78rem; margin: 0; }
-.demo-hint strong { color: #6b7280; }
 .footer-text { text-align: center; color: #6b7280; font-size: 0.875rem; margin: 0; }
 .footer-text a { color: #a78bfa; text-decoration: none; font-weight: 600; }
 .footer-text a:hover { color: #c4b5fd; }
