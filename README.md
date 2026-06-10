@@ -1,4 +1,4 @@
-# GameMate — Vue 3 + Laravel 12 (working full-stack)
+# GameMate — Vue 3 + Laravel 12 
 
 Pilna stack lietotne, kur spēlētāji izveido profilus, swipojas, matchojas un čatojas.
 
